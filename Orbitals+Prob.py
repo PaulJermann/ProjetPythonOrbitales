@@ -1,22 +1,26 @@
+#Python orbital visualizer. By M. Ewers, P. Brabant, I. Laurent, P. Jermann and F. Meyer. 2021.
+
 # Our goal is to draw a 3D representation of a few orbitals
-# we import two packages we need for our program
+# we import packages we need for our program
 import numpy # we use numpy in order to use mathematical tools depending on x, y, z
 from mayavi import mlab # we use mlab in order to draw our orbitals
 import matplotlib
 import matplotlib.pyplot as plt # We import all the modules we need to use in order to draw the graph (probability)
+import sys
 a0=0.52 # we define the Bohr radius
 A="Orbital group, for example 3d"
 
 print("This program displays the orbital shape as well as the most probable distance between the electron and the nuclei for a chosen orbital in the hydrogen atom.")
 
-nom = input("Which orbital do you wish to visualize? Please enter the name of the orbital: ") # the user chooses the orbital he wants to draw
+name = input("Which orbital do you wish to visualize? Please enter the name of the orbital: ") # the user chooses the orbital he wants to draw
 
-# We define the spheric coordinates r, theta, phi depending on x, y, z
+# We define the spherical coordinates r, theta, phi depending on x, y, z
 r = lambda x,y,z: numpy.sqrt(x**2+y**2+z**2)
 theta = lambda x,y,z: numpy.arccos(z/r(x,y,z))
 phi = lambda x,y,z: numpy.arctan(y/x)
 
-# We create a register of each equation we need to draw the different orbitals
+# We create a library of each equation we need to draw the different orbitals
+# Each section contains the radial part of the solution to the schrodinger equation, the wavefunction and the probability of presence for a given orbital.
 
 #1s
 rad1s = lambda r:((1/a0)**(3/2))*2*numpy.exp(-(r/a0))
@@ -81,65 +85,75 @@ Prob3dx2y2 = lambda r,theta,phi: abs(WF3dx2y2(r,theta,phi)**2)
 #we define the grid on which we want to draw the orbitals with one hundred steps
 x,y,z = numpy.ogrid[-10:10:100j,-10:10:100j,-10:10:100j]
 
-# we draw the figure
+# we create the figure
 mlab.figure()
 mask = 1
 
-# depending on what the orbital the user chooses we draw the corresponding orbital
-if nom == "1s":
+# We draw the orbital that the user chose by checking the input. We allocate a value to w which wil help in the visualization
+# and A which will help for the probability graph
+
+if name == "1s":
     w=Prob1s(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A="1s"
 
-if nom == "2s":
+elif name == "2s":
     w=Prob2s(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "2s"
 
-if nom == "2py":
+elif name == "2py":
     w=Prob2py(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "2p"
 
-if nom == "2px":
+elif name == "2px":
     w=Prob2px(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "2p"
 
-if nom == "2pz":
+elif name == "2pz":
     w=Prob2pz(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "2p"
 
-if nom == "3s":
+elif name == "3s":
     w=Prob3s(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "3s"
 
-if nom == "3pz":
+elif name == "3pz":
     w=Prob3pz(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "3p"
 
-if nom == "3dz2":
+elif name == "3dz2":
     w=Prob3dz2(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "3d"
 
-if nom == "3dxy":
+elif name == "3dxy":
     w=Prob3dxy(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "3d"
 
-if nom == "3dxz":
+elif name == "3dxz":
     w=Prob3dxz(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "3d"
 
-if nom == "3dyz":
+elif name == "3dyz":
     w=Prob3dyz(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "3d"
 
-if nom == "3dx2y2":
+elif name == "3dx2y2":
     w=Prob3dx2y2(r(x,y,z),theta(x,y,z),phi(x,y,z))
     A = "3d"
+else:
+    # If the input doesn't match with any of the orbitals the program stops to prevent an error
+    print("Please restart the program and enter a valid orbital name")
+    sys.exit()
 
-# the orbital's characteristics
+# We apply the orbital's mathematical description to the mask in order to draw it.
 mlab.contour3d(w*mask,contours=20,transparent=False)
+
+#We take a few extra steps and "voilà" the orbital shows itself
 
 mlab.colorbar()
 mlab.outline()
 mlab.show()
+
+# We create a new library of functions that correspond to the radial
 
 def radial1s(x,y,z):
     r=numpy.sqrt(x**2+y**2+z**2)
@@ -187,7 +201,7 @@ z = numpy.arange(zmin, zmax, dz)
 X, Y, Z = numpy.meshgrid(x, y, z)
 
 # we start a loop of "if" related to the orbital chosen by the user
-# according to the chosen orbital, it will plot the good and perfect graph representing the most probable distance between the electron and the nuclei
+# according to the chosen orbital, it will plot the right graph representing the most probable distance between the electron and the nucleus
 if A == "1s" :
     R = radial1s(x,y,z)
     a0 = 5.29
@@ -299,8 +313,3 @@ elif A == "3d":
     plt.text(xmax, ymax, "Maximum probability distance : 9.004044840859002 a0 ")
     plt.show()
     matplotlib.pyplot.close()
-
-else: # if the orbital chosen by the user doesn't match with the orbitals of the program, we ask him to enter another orbital which fits in our program
-    print("Please restart the program and enter a valid orbital name")
-
-
